@@ -49,8 +49,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.amaurypm.ifilesdiplojc.model.Student
 import com.amaurypm.ifilesdiplojc.ui.theme.IFilesDiploJCTheme
 import com.amaurypm.ifilesdiplojc.ui.theme.SnackbarRed
+import com.squareup.moshi.Moshi
 import java.io.File
 
 class MainActivity : ComponentActivity() {
@@ -152,7 +154,11 @@ fun MainScreen(){
 
                             if(!file.exists()) file.createNewFile()
 
-                            file.writeText(input)
+                            val student = Student(name = input, lastname = "Perea")
+                            val jsonString = Moshi.Builder().build().adapter(Student::class.java).toJson(student)
+
+
+                            file.writeText(jsonString)
 
                             input = ""
                             content = ""
@@ -209,7 +215,10 @@ fun MainScreen(){
                         val file = File(context.filesDir, "app_data.txt")
                         if(file.exists()){
 
-                            content = file.readText()
+                            val jsonString = file.readText()
+                            val student = Moshi.Builder().build().adapter(Student::class.java).fromJson(jsonString)
+
+                            content = context.getString(R.string.student_info, student?.id, student?.name, student?.lastname)
 
                         }else{
                             snackbarHostState.sbMessage(

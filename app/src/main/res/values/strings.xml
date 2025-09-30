@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">iFiles JC</string>
+    <string name="student_info">Id: %1$d, Nombre: %2$s %3$s</string>
 </resources>
