@@ -49,8 +49,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.amaurypm.ifilesdiplojc.model.Student
 import com.amaurypm.ifilesdiplojc.ui.theme.IFilesDiploJCTheme
 import com.amaurypm.ifilesdiplojc.ui.theme.SnackbarRed
+import com.google.gson.Gson
 import java.io.File
 
 class MainActivity : ComponentActivity() {
@@ -152,7 +154,10 @@ fun MainScreen(){
 
                             if(!file.exists()) file.createNewFile()
 
-                            file.writeText(input)
+                            val student = Student(name = input)
+                            val jsonString = Gson().toJson(student)
+
+                            file.writeText(jsonString)
 
                             input = ""
                             content = ""
@@ -209,7 +214,9 @@ fun MainScreen(){
                         val file = File(context.filesDir, "app_data.txt")
                         if(file.exists()){
 
-                            content = file.readText()
+                            val jsonString = file.readText()
+                            val student = Gson().fromJson(jsonString, Student::class.java)
+                            content = "Id: ${student.id}, Nombre: ${student.name}"
 
                         }else{
                             snackbarHostState.sbMessage(
