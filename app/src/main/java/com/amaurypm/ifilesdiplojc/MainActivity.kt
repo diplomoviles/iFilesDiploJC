@@ -49,24 +49,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.amaurypm.ifilesdiplojc.model.Student
 import com.amaurypm.ifilesdiplojc.ui.theme.IFilesDiploJCTheme
 import com.amaurypm.ifilesdiplojc.ui.theme.SnackbarRed
+import org.simpleframework.xml.core.Persister
 import java.io.File
+import java.io.StringWriter
 
 class MainActivity : ComponentActivity() {
+
+    private val serializer by lazy{
+        Persister()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             IFilesDiploJCTheme {
-                MainScreen()
+                MainScreen(serializer)
             }
         }
     }
 }
 
 @Composable
-fun MainScreen(){
+fun MainScreen(
+    serializer: Persister
+){
     val snackbarHostState = remember { SnackbarHostState() }
     var input by remember { mutableStateOf("") }
     //Para el foco del TextField
@@ -152,7 +161,15 @@ fun MainScreen(){
 
                             if(!file.exists()) file.createNewFile()
 
-                            file.writeText(input)
+                            val student = Student(name = input)
+
+                            val writer = StringWriter()
+
+                            serializer.write(student, writer)
+
+                            val xmlString = writer.toString()
+
+                            file.writeText(xmlString)
 
                             input = ""
                             content = ""
@@ -209,7 +226,11 @@ fun MainScreen(){
                         val file = File(context.filesDir, "app_data.txt")
                         if(file.exists()){
 
-                            content = file.readText()
+                            val xmlString = file.readText()
+
+                            val student = serializer.read(Student::class.java, xmlString)
+
+                            content = "Id: ${student.id}, Nombre: ${student.name}"
 
                         }else{
                             snackbarHostState.sbMessage(
@@ -247,6 +268,6 @@ fun MainScreen(){
 @Composable
 fun MainScreenPreview() {
     IFilesDiploJCTheme {
-        MainScreen()
+        MainScreen(Persister())
     }
 }
